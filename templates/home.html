@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Search Bar -->
+    <div class="relative">
+        <input type="text" 
+               placeholder="Search for A2 Milk, Ghee, Paneer etc..." 
+               class="w-full p-3 pl-10 rounded-lg border"
+               hx-get="/search"
+               hx-trigger="keyup changed delay:500ms"
+               hx-target="#search-results">
+        <span class="absolute left-3 top-3">🔍</span>
+    </div>
+
+    <!-- Categories -->
+    <div>
+        <div class="flex justify-between items-center mb-3">
+            <h2 class="text-lg font-semibold">Shop by category</h2>
+            <a href="{{ url_for('products', category='all') }}" class="text-blue-600">View All</a>
+        </div>
+        <div class="grid grid-cols-4 gap-4">
+            {% for category in categories %}
+            <a href="{{ url_for('products', category=category.category) }}" 
+               class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                    {% if category.category == 'milk' %}🥛
+                    {% elif category.category == 'ghee' %}🫙
+                    {% elif category.category == 'paneer' %}🧀
+                    {% else %}🥛{% endif %}
+                </div>
+                <span class="text-sm">{{ category.category|title }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- VIP Subscription Banner -->
+    <div class="bg-yellow-50 p-4 rounded-lg relative overflow-hidden">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="font-bold text-lg mb-1">Get VIP Subscription</h3>
+                <p class="text-sm">Enjoy minimum ₹300 off on all items.</p>
+            </div>
+            <button class="bg-green-500 text-white px-4 py-2 rounded-lg">
+                Explore Now
+            </button>
+        </div>
+        <div class="absolute right-0 bottom-0 opacity-20">
+            🥛
+        </div>
+    </div>
+
+    <!-- Product Lists -->
+    <div>
+        <div class="flex justify-between items-center mb-3">
+            <h2 class="text-lg font-semibold">Your Daily Fresh Needs</h2>
+            <a href="{{ url_for('products', category='all') }}" class="text-blue-600">View All</a>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            {% for product in products %}
+            <div class="bg-white p-3 rounded-lg shadow">
+                <img src="{{ product.image_url }}" 
+                     alt="{{ product.name }}"
+                     class="w-full h-32 object-cover rounded mb-2">
+                <h3 class="font-medium">{{ product.name }}</h3>
+                <p class="text-sm text-gray-500">{{ product.quantity }}</p>
+                <div class="flex items-center mt-1">
+                    <div class="flex text-yellow-400">
+                        {% for _ in range(product.rating|int) %}⭐{% endfor %}
+                    </div>
+                    <span class="text-xs text-gray-500 ml-1">({{ product.review_count }})</span>
+                </div>
+                <div class="flex items-center justify-between mt-2">
+                    <div>
+                        <span class="font-bold">₹{{ product.price }}</span>
+                        {% if product.original_price %}
+                        <span class="text-xs text-gray-500 line-through ml-1">
+                            ₹{{ product.original_price }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                            hx-post="/cart/add/{{ product.id }}"
+                            hx-swap="none">
+                        ADD
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
